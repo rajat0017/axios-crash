@@ -1,47 +1,140 @@
 // GET REQUEST
 function getTodos() {
-  console.log('GET Request');
+  axios.get('/api/todos')
+    .then(function (response) {
+      showOutput(response);
+      console.log('GET Request');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // POST REQUEST
 function addTodo() {
-  console.log('POST Request');
+  axios.post('/api/todos', { title: 'New Todo', completed: false })
+    .then(function (response) {
+      showOutput(response);
+      console.log('POST Request');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // PUT/PATCH REQUEST
 function updateTodo() {
-  console.log('PUT/PATCH Request');
+  axios.patch('/api/todos/1', { completed: true })
+    .then(function (response) {
+      showOutput(response);
+      console.log('PUT/PATCH Request');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // DELETE REQUEST
 function removeTodo() {
-  console.log('DELETE Request');
+  axios.delete('/api/todos/1')
+    .then(function (response) {
+      showOutput(response);
+      console.log('DELETE Request');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // SIMULTANEOUS DATA
 function getData() {
-  console.log('Simultaneous Request');
+  axios.all([
+    axios.get('/api/todos'),
+    axios.get('/api/posts')
+  ])
+    .then(axios.spread(function (todosResponse, postsResponse) {
+      // Process the response for todos
+      console.log('Todos:', todosResponse.data);
+
+      // Process the response for posts
+      console.log('Posts:', postsResponse.data);
+
+      console.log('Simultaneous Request');
+    }))
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // CUSTOM HEADERS
 function customHeaders() {
-  console.log('Custom Headers');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer TOKEN'
+    }
+  };
+
+  axios.get('/api/data', config)
+    .then(function (response) {
+      showOutput(response);
+      console.log('Custom Headers');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // TRANSFORMING REQUESTS & RESPONSES
 function transformResponse() {
-  console.log('Transform Response');
+  const config = {
+    transformResponse: axios.defaults.transformResponse.concat(function (data) {
+      // Transform the response data
+      data.transformed = true;
+      return data;
+    })
+  };
+
+  axios.get('/api/data', config)
+    .then(function (response) {
+      showOutput(response);
+      console.log('Transform Response');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
 // ERROR HANDLING
 function errorHandling() {
-  console.log('Error Handling');
+  axios.get('/api/nonexistent')
+    .then(function (response) {
+      showOutput(response);
+      console.log('Error Handling');
+    })
+    .catch(function (error) {
+      if (error.response) {
+        // The request was made, but the server responded with an error status
+        console.log('Error Status:', error.response.status);
+        console.log('Error Data:', error.response.data);
+      } else if (error.request) {
+        // The request was made, but no response was received
+        console.log('No Response:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an error
+        console.error('Error:', error.message);
+      }
+    });
 }
 
 // CANCEL TOKEN
 function cancelToken() {
-  console.log('Cancel Token');
-}
+  const source = axios.CancelToken.source();
+
+  axios.get('/api/data', {
+    cancelToken: source.token
+  })
+
 
 // INTERCEPTING REQUESTS & RESPONSES
 
